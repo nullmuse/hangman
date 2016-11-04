@@ -68,7 +68,10 @@ memset(filepath,0,pathsize);
 strncpy(filepath,path,strlen(path)); 
 strncat(filepath,filename,strlen(filename)); 
 
-FILE *fp = fopen(filepath,"r"); 
+FILE *fp = fopen(filepath,"r");
+if(fp == NULL) { 
+return NULL; 
+} 
 fseek(fp,0L,SEEK_END); 
 fpoint = ftell(fp); 
 rewind(fp); 

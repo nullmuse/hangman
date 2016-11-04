@@ -276,7 +276,14 @@ int game_menu(void) {
     int ch, i = 0;
     char *win = "You win!"; 
     char *lose = "You lose punk."; 
-    char *testwurd = word_mongler(); 
+    char *testwurd = word_mongler();
+    if(testwurd == NULL) { 
+    clear(); 
+    refresh();
+    endwin(); 
+    printf("Error: .words file not found\n"); 
+    exit(2); 
+    }
     int retval = 0;
     char *checkstring = malloc(strlen(testwurd) + 1); 
     memset(checkstring,0,strlen(testwurd) + 1); 
