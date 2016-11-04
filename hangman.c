@@ -5,9 +5,9 @@
 #include <sys/ioctl.h>
 #include <time.h>
 
-int gloc = 0;
+int gloc = 1;
 int gnoose = 0; 
-
+char *gterm[7] = {NULL, NULL, NULL, NULL, NULL, NULL};  
 int draw_part(WINDOW *w, int part, int loc) { 
 int i,min; 
 wattroff(w, COLOR_PAIR(1));
@@ -53,31 +53,39 @@ switch (part) {
 }
 
 
-int draw_word(WINDOW *w,int loc, char *wurd) { 
+int draw_word(WINDOW *w,int loc, char *wurd, int store) { 
    wattroff(w, COLOR_PAIR(1));
-   mvwprintw(w, loc + 1, 10, "%s", wurd);
-   wrefresh(w); 
+   if(store) {
+   char *bufitem = malloc(strlen(wurd) + 1);
+   strncpy(bufitem,wurd,strlen(wurd) + 1); 
+   if(gterm[loc - 1] != NULL) { 
+    free(gterm[loc - 1]);  
+   } 
+   gterm[loc - 1] = bufitem; 
+  }
+   mvwprintw(w, loc, 3, "%s", wurd);
    wattron(w, COLOR_PAIR(1));
    return loc + 1; 
 }
 
 int terminal_scroll(WINDOW *w) { 
-int i,k; 
-char *tmp = malloc(30); 
-memset(tmp,0,30); 
+int i,k,l; 
+char *space = "                            ";
+char *tmp = malloc(20); 
+char *cont;
+//wmove(w,1,1); 
+//free(gterm[0]); 
+for(i = 0; i < 4; i++) { 
+gterm[i - 1] = gterm[i]; 
+}
+memset(tmp,0,20); 
 for(k=1;k < 5;k++) {  
-if(k > 1) {
-for(i = 1; i > 30; i++) {  
-wmove(w,k,i);
-tmp[i] = wgetch(w);
+//wmove(w,k,1);
+draw_word(w,k,space,0);
 }
-draw_word(w,k - 1,tmp); 
-memset(tmp,0,30); 
-}
-for(i = 1; i > 30; i++) {
-wmove(w,k,i);
-wdelch(w);
-}
+//wmove(w,
+for(k = 1; k < 5; k++) {
+draw_word(w,k,gterm[k - 1],0);
 } 
 free(tmp);
 wrefresh(w); 
@@ -86,13 +94,16 @@ return 0;
 }
 
 int terminal_handler(WINDOW *w, char *wurd) { 
-   int retloc = draw_word(w,gloc,wurd); 
-   if(retloc > 5) {
-   terminal_scroll(w); 
-   return retloc - 1; 
+   if (gloc  == 5) { 
+    terminal_scroll(w); 
+    draw_word(w,gloc,wurd,1);  
+    wrefresh(w);
+    return gloc; 
    } 
+   draw_word(w,gloc,wurd,1); 
    gloc++;
-   return retloc; 
+   wrefresh(w);
+   return gloc; 
 }
 
 
