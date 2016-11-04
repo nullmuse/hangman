@@ -5,6 +5,7 @@
 #include <sys/ioctl.h>
 #include <time.h>
 #include "word_mongler.h"
+#include <unistd.h>
 int gloc = 1;
 int gnoose = 0; 
 char *gterm[5] = {NULL, NULL, NULL, NULL, NULL};  
@@ -223,22 +224,34 @@ int main(void) {
 int menuret = 0; 
 
 
-initscr(); 
+
 
 while(menuret != 3)  {
+initscr(); 
 menuret = main_menu(); 
 switch(menuret) { 
 
-case 0:
+case 0: 
+   clear(); 
+   refresh();  
    menuret = game_menu(); 
    break; 
+
+case 2:
+   clear();
+   refresh();  
+   read_stats();
+   sleep(3);
+   endwin();
+   return; 
+   
 case 3:
    endwin();
    return; 
-   break;
 }
 clear();   
 refresh();
+endwin(); 
 }
 }
 
@@ -302,7 +315,9 @@ int game_menu(void) {
     sleep(2);
     delwin(w); 
     delwin(w2);
-    refresh();  
+    refresh();
+    free(testwurd);
+    free(checkstring); 
     return 1; 
     }
     if(!strcmp(testwurd,checkstring)) { 
@@ -311,8 +326,12 @@ int game_menu(void) {
     delwin(w);
     delwin(w2);
     refresh();
+    free(testwurd);
+    free(checkstring);
     return 1;
+
     }
+
 
 }
 }

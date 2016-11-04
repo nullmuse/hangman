@@ -6,6 +6,7 @@
 
 static int MAX_MALLOC = 5000; 
 static int MAX_WORD = 35; 
+
 char *word_mongler(void) { 
 
 srand(time(NULL)); 
@@ -57,7 +58,35 @@ strncpy(word,cand,cand_length - 1);
 }
 
 }
+free(wds);
+free(savept);
 return word; 
 
 }
 
+void read_stats(void) { 
+
+char *path = getenv("HOME");
+char *filename = "/.hangman";
+char *cand;
+int memsize;
+char *stats = malloc(4); 
+int pathsize = strlen(path) + strlen(filename) + 2;
+int fpoint,selection;
+long i;
+char *word = NULL;
+char *filepath = malloc(pathsize);
+memset(filepath,0,pathsize);
+strncpy(filepath,path,strlen(path));
+strncat(filepath,filename,strlen(filename));
+
+FILE *fp = fopen(filepath,"r");
+fgets(stats,4,fp); 
+fclose(fp); 
+free(filepath); 
+printf("Games played:%c  Games won:%c  Games lost:%c\n",stats[0],stats[1],stats[2]);
+free(stats); 
+
+return; 
+
+} 
