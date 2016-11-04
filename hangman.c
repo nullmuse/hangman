@@ -4,10 +4,10 @@
 #include <stdio.h>
 #include <sys/ioctl.h>
 #include <time.h>
-
+#include "word_mongler.h"
 int gloc = 1;
 int gnoose = 0; 
-char *gterm[7] = {NULL, NULL, NULL, NULL, NULL, NULL};  
+char *gterm[5] = {NULL, NULL, NULL, NULL, NULL};  
 int draw_part(WINDOW *w, int part, int loc) { 
 int i,min; 
 wattroff(w, COLOR_PAIR(1));
@@ -249,7 +249,7 @@ int game_menu(void) {
     int ch, i = 0;
     char *win = "You win!"; 
     char *lose = "You lose punk."; 
-    char *testwurd = "testwurd"; 
+    char *testwurd = word_mongler(); 
     int retval = 0;
     char *checkstring = malloc(strlen(testwurd) + 1); 
     memset(checkstring,0,strlen(testwurd) + 1); 
@@ -296,8 +296,10 @@ int game_menu(void) {
     
     wrefresh(w);
     if(gnoose >= 6) { 
-    terminal_handler(w2,lose); 
-    sleep(2);
+    terminal_handler(w2,lose);
+    mvwprintw(w2, 6, 3, "%s", testwurd);
+    wrefresh(w2);  
+    sleep(8);
     delwin(w); 
     delwin(w2); 
     return 1; 
