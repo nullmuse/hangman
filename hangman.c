@@ -223,7 +223,8 @@ int main(void) {
 
 int menuret = 0; 
 
-
+if(read_stats(0) == NULL)
+push_stats("0:0:0"); 
 
 
 while(menuret != 3)  {
@@ -240,7 +241,8 @@ case 0:
 case 2:
    clear();
    refresh();  
-   read_stats();
+   read_stats(1);
+   refresh(); 
    sleep(3);
    endwin();
    return; 
