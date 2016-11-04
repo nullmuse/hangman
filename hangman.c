@@ -5,20 +5,8 @@
 #include <sys/ioctl.h>
 #include <time.h>
 
-int draw_head(WINDOW *w) { 
-wattroff(w, COLOR_PAIR(1));
-int i; 
-          mvwprintw(w, 2, 12, "%s", "-----");
-          mvwprintw(w, 3, 12, "%s", "|O o|");
-          mvwprintw(w, 4, 12, "%s", "| ~ |"); 
-          mvwprintw(w, 5, 12, "%s", "-----");
-
-      wrefresh(w); 
-      wattron(w, COLOR_PAIR(1));
-
-      return 5;
-
-}
+int gloc = 0;
+int gnoose = 0; 
 
 int draw_part(WINDOW *w, int part, int loc) { 
 int i,min; 
@@ -27,7 +15,15 @@ wattroff(w, COLOR_PAIR(1));
 switch (part) { 
  
 
-	case 1:
+	case 0:
+          mvwprintw(w, 2, 12, "%s", "-----");
+          mvwprintw(w, 3, 12, "%s", "|O o|");
+          mvwprintw(w, 4, 12, "%s", "| ~ |");
+          mvwprintw(w, 5, 12, "%s", "-----");
+          i = 4;
+          break; 
+
+        case 1:
          for(i=1;i<8;i++) { 
             mvwprintw(w, i + loc, 14, "%s", "|"); 
          }
@@ -59,7 +55,7 @@ switch (part) {
 
 int draw_word(WINDOW *w,int loc, char *wurd) { 
    wattroff(w, COLOR_PAIR(1));
-   mvwprintw(w, 1 + loc, 10, "%s", wurd);
+   mvwprintw(w, loc + 1, 10, "%s", wurd);
    wrefresh(w); 
    wattron(w, COLOR_PAIR(1));
    return loc + 1; 
@@ -88,6 +84,36 @@ wrefresh(w);
 return 0;  
      
 }
+
+int terminal_handler(WINDOW *w, char *wurd) { 
+   int retloc = draw_word(w,gloc,wurd); 
+   if(retloc > 5) {
+   terminal_scroll(w); 
+   return retloc - 1; 
+   } 
+   gloc++;
+   return retloc; 
+}
+
+
+int guess_compare(WINDOW *w, char *guess, char *wurd, char *testwurd) { 
+     int i,in = 0; 
+     int wlen = strlen(wurd);   
+     for(i = 0; i < wlen; ++i) { 
+        if(guess[0] == wurd[i]) { 
+           in++;
+           testwurd[i] = wurd[i]; 
+        }
+      }
+     terminal_handler(w,testwurd); 
+     return in; 
+}
+
+
+
+
+
+
 int main_menu(void) { 
     char manglyph[3][5] = {"  0"," /|\\"," / \\"}; 
     WINDOW *w;
@@ -207,9 +233,16 @@ int game_menu(void) {
     char manglyphs[6][5] = {"0"," /","|","\\","/","\\"};
     WINDOW *w,*w2;
     char list[4][13] = { "New Game", "Load Game", "Stats", "Quit"};
-    char *item = malloc(14);
+    char *item = malloc(2);
+    item[1] = 0; 
     int ch, i = 0;
+    char *win = "You win!"; 
+    char *lose = "You lose punk."; 
+    char *testwurd = "testwurd"; 
     int retval = 0;
+    char *checkstring = malloc(strlen(testwurd) + 1); 
+    memset(checkstring,0,strlen(testwurd) + 1); 
+    memset(checkstring,'_',strlen(testwurd));
     int width = 30;
     int curspos = 0;
     int height = 30;
@@ -229,38 +262,44 @@ int game_menu(void) {
     startx2 = max.ws_col / 4;
     w = newwin(height,width,starty1,startx1);
     w2 = newwin(height2,width2,starty2,startx2);
-    scrollok(w,TRUE);
-    scrollok(w2,TRUE);
     wattron(w, COLOR_PAIR(1));
     box(w,'+','=');
     wattron(w2, COLOR_PAIR(1));
     box(w2,'+','='); 
     wrefresh(w); 
     wrefresh(w2);
-    refresh();
     sleep(1);
-    loc = draw_head(w);
-    loc2 = draw_part(w,1,loc);  
-    draw_part(w,2,loc);
-    draw_part(w,3,loc);
-    draw_part(w,2,loc2  + 3);
-    draw_part(w,3,loc2  +3);
+    while(ch != '<') {
+       ch = wgetch(w);
+       item[0] = ch; 
+    if(!guess_compare(w2, item, testwurd, checkstring)) { 
+       if(gnoose == 0)
+        loc = draw_part(w,gnoose++,0);
+       else if(gnoose == 1)
+        loc2 = draw_part(w,gnoose++,loc); 
+       else if(gnoose < 4)
+        draw_part(w,gnoose++,loc); 
+       else
+        draw_part(w,(gnoose++) - 2,loc2 + 3); 
+       } 
+    
     wrefresh(w);
-    sleep(2);
-    int mod = 0;
-    for(curspos = 0; curspos < 10;curspos++) {  
-    draw_word(w2,curspos - mod,"some");
-    if(curspos > 5) {
-    terminal_scroll(w2); 
-    mod++;
-    }
-    sleep(1);
-    } 
-    wrefresh(w2);
+    if(gnoose >= 6) { 
+    terminal_handler(w2,lose); 
     sleep(2);
     delwin(w); 
     delwin(w2); 
     return 1; 
+    }
+    if(!strcmp(testwurd,checkstring)) { 
+    terminal_handler(w2,win);
+    sleep(2);
+    delwin(w);
+    delwin(w2);
+    return 1;
+    }
+
+}
 }
     /* wattron(w, COLOR_PAIR(1));
     for(i=0;i<4;i++) {
