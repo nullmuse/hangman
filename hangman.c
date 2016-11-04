@@ -57,12 +57,41 @@ switch (part) {
 }
 
 
+int draw_word(WINDOW *w,int loc, char *wurd) { 
+   wattroff(w, COLOR_PAIR(1));
+   mvwprintw(w, 1 + loc, 10, "%s", wurd);
+   wrefresh(w); 
+   wattron(w, COLOR_PAIR(1));
+   return loc + 1; 
+}
 
-
+int terminal_scroll(WINDOW *w) { 
+int i,k; 
+char *tmp = malloc(30); 
+memset(tmp,0,30); 
+for(k=1;k < 5;k++) {  
+if(k > 1) {
+for(i = 1; i > 30; i++) {  
+wmove(w,k,i);
+tmp[i] = wgetch(w);
+}
+draw_word(w,k - 1,tmp); 
+memset(tmp,0,30); 
+}
+for(i = 1; i > 30; i++) {
+wmove(w,k,i);
+wdelch(w);
+}
+} 
+free(tmp);
+wrefresh(w); 
+return 0;  
+     
+}
 int main_menu(void) { 
     char manglyph[3][5] = {"  0"," /|\\"," / \\"}; 
     WINDOW *w;
-    char list[4][13] = { "New Game", "Load Game", "Stats", "Quit"};
+    char list[4][13] = { "New Game","Load Game", "Stats", "Quit"};
     char *item = malloc(14); 
     int ch, i = 0; 
     int retval = 0; 
@@ -182,6 +211,7 @@ int game_menu(void) {
     int ch, i = 0;
     int retval = 0;
     int width = 30;
+    int curspos = 0;
     int height = 30;
     int width2 = 70;
     int height2 = 10;
@@ -199,6 +229,8 @@ int game_menu(void) {
     startx2 = max.ws_col / 4;
     w = newwin(height,width,starty1,startx1);
     w2 = newwin(height2,width2,starty2,startx2);
+    scrollok(w,TRUE);
+    scrollok(w2,TRUE);
     wattron(w, COLOR_PAIR(1));
     box(w,'+','=');
     wattron(w2, COLOR_PAIR(1));
@@ -214,6 +246,17 @@ int game_menu(void) {
     draw_part(w,2,loc2  + 3);
     draw_part(w,3,loc2  +3);
     wrefresh(w);
+    sleep(2);
+    int mod = 0;
+    for(curspos = 0; curspos < 10;curspos++) {  
+    draw_word(w2,curspos - mod,"some");
+    if(curspos > 5) {
+    terminal_scroll(w2); 
+    mod++;
+    }
+    sleep(1);
+    } 
+    wrefresh(w2);
     sleep(2);
     delwin(w); 
     delwin(w2); 
