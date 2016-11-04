@@ -1,4 +1,10 @@
 #include <ncurses.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/ioctl.h>
+
+
+
 
 int main(void) { 
 
@@ -8,19 +14,22 @@ int main(void) {
     int ch, i = 0; 
     int width = 10;
     int height = 3;
-    int starty = (LINES ); 
-    int startx = (COLS);
+    int startx,starty; 
+    struct winsize max; 
+    ioctl(0,TIOCGWINSZ, &max);
+    starty = max.ws_row / 2;
+    startx = max.ws_col / 2;
     initscr(); 
-    w = newwin(10, 15,30,50); 
-    box(w,starty,startx); 
+    w = newwin(10,15,starty,startx); 
+    box(w,'+','='); 
     
     for(i=0;i<4;i++) { 
        if(i ==0)
           wattron(w, A_STANDOUT); 
        else
           wattroff(w, A_STANDOUT); 
-       sprintf(item, "%-15s", list[i]); 
-       mvwprintw(w, i+1, 2, "%s", item); 
+       sprintf(item, "%-12s", list[i]); 
+       mvwprintw(w, i+2, 2, "%s", item); 
     }
 
     wrefresh(w); 
@@ -30,8 +39,8 @@ int main(void) {
     keypad(w, TRUE); 
     curs_set(0); 
     while((ch = wgetch(w)) != 'q') { 
-       sprintf(item, "%-15s", list[i]); 
-       mvwprintw(w, i+1, 2, "%s", item); 
+       sprintf(item, "%-12s", list[i]); 
+       mvwprintw(w, i+2, 2, "%s", item); 
        switch(ch) { 
            case KEY_UP:
                i--;
@@ -44,12 +53,13 @@ int main(void) {
 
         }
         wattron(w, A_STANDOUT); 
-        sprintf(item, "%-15s", list[i]); 
-        mvwprintw(w, i+1, 2, "%s", item);
+        sprintf(item, "%-12s", list[i]); 
+        mvwprintw(w, i+2, 2, "%s", item);
         wattroff(w, A_STANDOUT); 
 }
         delwin(w);
         endwin();
-        printf("%i %i\n",starty, startx); 
+        char* thi = getenv("HOME"); 
+        printf("%s\n",thi);  
 }
 
