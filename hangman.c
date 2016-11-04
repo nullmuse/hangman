@@ -165,8 +165,7 @@ int main_menu(void) {
        mvwprintw(w, i+6, 1, "%s", item);    
        memset(item,0,13); 
     }
-      //snprintf(item, 14," %-13s", "            ");
-      //mvwprintw(w, i+5, 1, "%s", item);
+
    
     i = 0;
     memset(item,0,13); 
@@ -223,27 +222,28 @@ int main(void) {
 
 int menuret = 0; 
 
+
 initscr(); 
 
+while(menuret != 3)  {
 menuret = main_menu(); 
-
 switch(menuret) { 
 
 case 0:
    menuret = game_menu(); 
    break; 
 case 3:
-   endwin(); 
+   endwin();
+   return; 
    break;
 }
-if(menuret == 1)
-endwin(); 
-
+clear();   
+refresh();
 }
+}
+
 int game_menu(void) {
-    char manglyphs[6][5] = {"0"," /","|","\\","/","\\"};
     WINDOW *w,*w2;
-    char list[4][13] = { "New Game", "Load Game", "Stats", "Quit"};
     char *item = malloc(2);
     item[1] = 0; 
     int ch, i = 0;
@@ -299,9 +299,10 @@ int game_menu(void) {
     terminal_handler(w2,lose);
     mvwprintw(w2, 6, 3, "%s", testwurd);
     wrefresh(w2);  
-    sleep(8);
+    sleep(2);
     delwin(w); 
-    delwin(w2); 
+    delwin(w2);
+    refresh();  
     return 1; 
     }
     if(!strcmp(testwurd,checkstring)) { 
@@ -309,64 +310,9 @@ int game_menu(void) {
     sleep(2);
     delwin(w);
     delwin(w2);
+    refresh();
     return 1;
     }
 
 }
 }
-    /* wattron(w, COLOR_PAIR(1));
-    for(i=0;i<4;i++) {
-          wattroff(w, A_STANDOUT);
-           wattron(w, COLOR_PAIR(1));
-          snprintf(item, 14," %-13s", list[i]);
-          mvwprintw(w, i+1, 1, "%s", item);
-          memset(item,0,13);
-          }
-
-     snprintf(item, 14," %-13s", "            ");
-     mvwprintw(w, i+1, 1, "%s", item);
-     for(i=0;i<3;++i) {
-          wattroff(w, A_STANDOUT);
-           wattron(w, COLOR_PAIR(1));
-       snprintf(item,14, "   %-13s", manglyph[i]);
-       mvwprintw(w, i+6, 1, "%s", item);
-       memset(item,0,13);
-    }
-      //snprintf(item, 14," %-13s", "            ");
-      //mvwprintw(w, i+5, 1, "%s", item);
-
-    i = 0;
-    memset(item,0,13);
-    wattron(w, COLOR_PAIR(3));
-    wattron(w, A_STANDOUT);
-    snprintf(item,14," %-13s", list[i]);
-    mvwprintw(w, i+1, 1, "%s", item);
-    wattron(w, COLOR_PAIR(1));
-    wattroff(w, A_STANDOUT);
-    wrefresh(w);
-    noecho();
-    keypad(w, TRUE);
-    curs_set(0);
-    
-    while(ch != 'q') {
-       ch = wgetch(w);
-       snprintf(item,14," %-13s", list[i]);
-
-      }
-        wattron(w, A_STANDOUT);
-         wattron(w, COLOR_PAIR(3));
-        snprintf(item,13," %-12s", list[i]);
-        mvwprintw(w, i+1, 1, "%s", item);
-
-         wattron(w, COLOR_PAIR(3));
-         wattroff(w, A_STANDOUT);
-        wattron(w, COLOR_PAIR(1));
-
-}
-        delwin(w);
-        char* thi = getenv("HOME");
-        printf("%s\n",thi);
-        return retval;
-}
-
-*/
