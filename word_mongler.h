@@ -100,8 +100,6 @@ strncpy(word,cand,cand_length - 1);
 }
 
 }
-free(wds);
-free(savept);
 return word; 
 
 }

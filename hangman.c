@@ -222,10 +222,15 @@ int main_menu(void) {
 int main(void) { 
 
 int menuret = 0; 
-
-if(read_stats(0) == NULL)
+int stat1,stat2,stat3 = 0;
+if(read_stats(0) == NULL) 
 push_stats("0:0:0"); 
-
+char *st = malloc(10);
+char *stati = read_stats(0);
+stat1 = transmute_char(strtok(stati,":")); 
+stat2 = transmute_char(strtok(NULL,":"));
+stat3 = transmute_char(strtok(NULL,":")); 
+memset(st,0,10);
 
 while(menuret != 3)  {
 initscr(); 
@@ -235,7 +240,14 @@ switch(menuret) {
 case 0: 
    clear(); 
    refresh();  
+   stat1++;
    menuret = game_menu(); 
+   if(menuret)
+      stat2++;
+   else
+      stat3++; 
+   snprintf(st,9,"%i:%i:%i",stat1,stat2,stat3);
+   push_stats(st);
    break; 
 
 case 2:
@@ -320,7 +332,7 @@ int game_menu(void) {
     refresh();
     free(testwurd);
     free(checkstring); 
-    return 1; 
+    return 0; 
     }
     if(!strcmp(testwurd,checkstring)) { 
     terminal_handler(w2,win);
